@@ -3,18 +3,18 @@ import { Parser } from 'json2csv'
 import { ethers } from "hardhat";
 import * as fs from 'fs/promises';
 
-describe("AbdkLog", function () {
+describe("Abdk", function () {
   async function deployFixture() {
     const [owner, otherAccount] = await ethers.getSigners();
 
-    const AbdkLog = await ethers.getContractFactory("AbdkLog");
-    const abdkLog = await AbdkLog.deploy();
+    const Abdk = await ethers.getContractFactory("Abdk");
+    const abdk = await Abdk.deploy();
 
-    return { abdkLog, owner, otherAccount };
+    return { abdk, owner, otherAccount };
   }
 
-  it("ABDK gas", async function () {
-    const { abdkLog } = await loadFixture(deployFixture);
+  it("ABDK log gas", async function () {
+    const { abdk } = await loadFixture(deployFixture);
 
     const values = []
     // log table has values for logs from 1.00 to 9.99 (less than 10)
@@ -23,8 +23,8 @@ describe("AbdkLog", function () {
     for (let i = 100; i < 1000; i++) {
       const numberX64 = (BigInt(i) << 64n) / 100n
       const [log, gas] = await Promise.all([
-        abdkLog.log10(numberX64),
-        abdkLog.log10GasCost(numberX64),
+        abdk.log10(numberX64),
+        abdk.log10GasCost(numberX64),
       ])
       values.push({
         i,

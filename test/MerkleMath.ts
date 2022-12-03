@@ -4,18 +4,18 @@ import { ethers } from "hardhat";
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree"
 import fs from "fs"
 
-describe("MerkleLog", function () {
+describe("MerkleMath", function () {
   async function deployFixture() {
     const [owner, otherAccount] = await ethers.getSigners();
 
-    const MerkleLog = await ethers.getContractFactory("MerkleLog");
-    const merkleLog = await MerkleLog.deploy();
+    const MerkleMath = await ethers.getContractFactory("MerkleMath");
+    const merkleMath = await MerkleMath.deploy();
 
-    return { merkleLog, owner, otherAccount };
+    return { merkleMath, owner, otherAccount };
   }
 
   it("Merkle gas", async function () {
-    const { merkleLog } = await loadFixture(deployFixture);
+    const { merkleMath } = await loadFixture(deployFixture);
 
     const tree = StandardMerkleTree.load(JSON.parse(fs.readFileSync("tree.json").toString()))
 
@@ -34,8 +34,8 @@ describe("MerkleLog", function () {
       if (!proof || !logX64) {
         throw Error('Not found')
       }
-      const result = await merkleLog.log10(0n, x, logX64, proof)
-      const gas = await merkleLog.log10GasCost(0n, x, logX64, proof)
+      const result = await merkleMath.log10(0n, x, logX64, proof)
+      const gas = await merkleMath.log10GasCost(0n, x, logX64, proof)
 
       values.push({
         i: x,

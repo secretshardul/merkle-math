@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "abdk-libraries-solidity/ABDKMath64x64.sol";
 
-contract AbdkLog {
+library Abdk {
 
   /**
    * Calculate base 10 logarithm of x.  Revert if x <= 0.
@@ -31,6 +31,19 @@ contract AbdkLog {
   function log10GasCost(int128 x) public view returns (uint256) {
     uint256 gasBefore = gasleft();
     log10(x);
+    return gasBefore - gasleft();
+  }
+
+  /**
+   * Estimate gas to calculate x^y with ABDK math.
+   *
+   * @param x signed 64.64-bit fixed point number
+   * @param y uint256 value
+   * @return unsigned gas used
+   */
+  function powGasCost(int128 x, uint256 y) public view returns (uint256) {
+    uint256 gasBefore = gasleft();
+    ABDKMath64x64.pow(x, y);
     return gasBefore - gasleft();
   }
 }
