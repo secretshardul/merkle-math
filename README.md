@@ -18,5 +18,5 @@ hardhat run ./scripts/deploy.ts --network hardhat
 2. LogStorage- 0x5FbDB2315678afecb367f032d93F642f64180aa3
 
 ### Mumbai
-1. Library- 0x842F183E400560bDB47Cf6e5c972CDE1bfe3aDd1
-2. LogStorage- 0xbF3892B7A68e939bF1ca0DB5f91d5Cc73AaF779A
+1. MerkleMath- 0xc12af78631eD26157B1ce37C680f99A5389cdf21
+2. Calculator- 0x369b45A61F8B569300e6137F61cB42Dfb21Ab6Ba

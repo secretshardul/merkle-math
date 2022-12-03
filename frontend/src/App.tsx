@@ -5,7 +5,7 @@ import { useWallet } from 'use-wallet'
 import Gist from 'react-gist'
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree"
 import './App.css'
-import { abi } from './contracts/LogStorage.sol/LogStorage.json'
+import { abi } from './contracts/Calculator.sol/Calculator.json'
 import * as treeJson from './tree.json'
 
 function App() {
@@ -24,15 +24,15 @@ function App() {
     if (!provider) {
       return
     }
-    const logStorage = new ethers.Contract('0xbF3892B7A68e939bF1ca0DB5f91d5Cc73AaF779A', abi, provider);
+    const calculator = new ethers.Contract('0x369b45A61F8B569300e6137F61cB42Dfb21Ab6Ba', abi, provider);
 
-    logStorage.storedCharacteristic()
+    calculator.storedCharacteristic()
       .then((value: number) => setStoredCharacteristic(value))
 
-    logStorage.storedMantissa()
+    calculator.storedMantissa()
       .then((value: number) => setStoredMantissa(value))
 
-    logStorage.storedLogX64()
+    calculator.storedLogX64()
       .then((value: EthersBigNumber) => {
         const x64 = new BigNumber(2).pow(64)
         const readableLog = new BigNumber(value.toString()).div(x64)
@@ -46,7 +46,7 @@ function App() {
     if (!provider) {
       return
     }
-    const logStorage = new ethers.Contract('0xbF3892B7A68e939bF1ca0DB5f91d5Cc73AaF779A', abi, provider.getSigner())
+    const calculator = new ethers.Contract('0x369b45A61F8B569300e6137F61cB42Dfb21Ab6Ba', abi, provider.getSigner())
 
     // Generate characteristic and mantissa
     const char = Math.floor(Math.log10(newX))
@@ -80,8 +80,8 @@ function App() {
     if (!proof || !logX64) {
       throw Error('Not found')
     }
-    const result = await logStorage.updateLog(char, mantissa, logX64, proof, {
-      gasLimit: 1_000_000
+    const result = await calculator.updateLog(char, mantissa, logX64, proof, {
+      gasLimit: 10_000_000
     })
     console.log('result', result)
   }

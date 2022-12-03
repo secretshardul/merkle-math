@@ -1,12 +1,12 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const MerkleLog = await ethers.getContractFactory("MerkleLog");
-  const merkleLog = await MerkleLog.deploy();
+  const MerkleMath = await ethers.getContractFactory("MerkleMath");
+  const merkleMath = await MerkleMath.deploy();
 
-  await merkleLog.deployed();
+  await merkleMath.deployed();
 
-  console.log(`Merkle log deployed to ${merkleLog.address}`);
+  console.log(`Merkle log deployed to ${merkleMath.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
