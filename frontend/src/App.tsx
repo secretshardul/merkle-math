@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useWallet } from 'use-wallet'
 import reactLogo from './assets/react.svg'
 import './App.css'
 
 function App() {
+  const wallet = useWallet()
   const [x, setX] = useState<number>(100)
 
   return (
@@ -15,14 +17,23 @@ function App() {
       <h1>Napier's Tree</h1>
       <h2>x = 10, log (x) = 1</h2>
       <div className="card">
-        <input type="number"
-          style={{ marginRight: 10 }}
-          value={x}
-          onChange={event => setX(Number(event.target.value))}
-        />
-        <button onClick={() => { }}>
-          Calculate log
-        </button>
+        <div>
+          <input type="number"
+            style={{ marginRight: 10 }}
+            value={x}
+            onChange={event => setX(Number(event.target.value))}
+          />
+
+          {
+            wallet.isConnected()
+              ? <button onClick={() => { }}>
+                  Calculate log
+                </button>
+              : <button onClick={() => wallet.connect()}>Connect MetaMask</button>
+          }
+
+        </div>
+
 
       </div>
       <p>
