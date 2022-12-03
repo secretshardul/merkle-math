@@ -34,8 +34,8 @@ describe("MerkleLog", function () {
       if (!proof || !logX64) {
         throw Error('Not found')
       }
-      const result = await merkleLog.log10(x, logX64, proof)
-      const gas = await merkleLog.log10GasCost(x, logX64, proof)
+      const result = await merkleLog.log10(0n, x, logX64, proof)
+      const gas = await merkleLog.log10GasCost(0n, x, logX64, proof)
 
       values.push({
         i: x,
