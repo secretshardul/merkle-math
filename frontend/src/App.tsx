@@ -5,8 +5,13 @@ import { useWallet } from 'use-wallet'
 import Gist from 'react-gist'
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree"
 import './App.css'
-import { abi } from './contracts/Calculator.sol/Calculator.json'
+import { abi as calculatorAbi } from './contracts/Calculator.sol/Calculator.json'
+import { abi as merkleMathAbi } from './contracts/MerkleMath.sol/MerkleMath.json'
+
 import * as treeJson from './tree.json'
+import * as antilogTreeJson from './antilogTree.json'
+
+const x64 = new BigNumber(2).pow(64)
 
 function App() {
   const wallet = useWallet()
@@ -20,11 +25,65 @@ function App() {
   const [newX, setNewX] = useState<number>(1)
   const [storedLog, setStoredLog] = useState('0')
 
+  // To find log or antilog
+  const [isLog, setIsLog] = useState(true)
+
+  // Antilog variables
+  const [base, setBase] = useState(10)
+  const [power, setPower] = useState(1)
+  const [raised, setRaised] = useState<string>()
+
+  // @ts-ignore
+  const antilogTree = StandardMerkleTree.load(antilogTreeJson)
+
   useEffect(() => {
     if (!provider) {
       return
     }
-    const calculator = new ethers.Contract('0x369b45A61F8B569300e6137F61cB42Dfb21Ab6Ba', abi, provider);
+
+    const merkleMath = new ethers.Contract('0xc12af78631eD26157B1ce37C680f99A5389cdf21', merkleMathAbi, provider);
+    async function getRaised() {
+      // change of base
+      const powerForBase2 = power * Math.log10(base) / Math.log10(2)
+
+      // Separate characteristic and mantissa
+      const characteristic = Math.floor(powerForBase2)
+      const mantissa = powerForBase2 - characteristic
+
+      const mantissaMul1000 = Math.floor(mantissa * 1000)
+
+      let proof: string[] | undefined
+      let antilog2X64ForMantissa: string | undefined
+
+      for (const [i, v] of antilogTree.entries()) {
+        if (v[0] === mantissaMul1000.toString()) {
+          proof = antilogTree.getProof(i);
+          antilog2X64ForMantissa = v[1]
+        }
+      }
+
+      if (!proof || !antilog2X64ForMantissa) {
+        throw Error('Not found')
+      }
+
+      const antilogX64 = await merkleMath.antilog(
+        characteristic.toString(),
+        mantissaMul1000,
+        antilog2X64ForMantissa,
+        proof
+      )
+      const convertedAntilog = new BigNumber(antilogX64.toString()).div(x64).toFixed(4, BigNumber.ROUND_DOWN)
+      setRaised(convertedAntilog)
+    }
+
+    getRaised()
+  }, [base, power])
+
+  useEffect(() => {
+    if (!provider) {
+      return
+    }
+    const calculator = new ethers.Contract('0x369b45A61F8B569300e6137F61cB42Dfb21Ab6Ba', calculatorAbi, provider);
 
     calculator.storedCharacteristic()
       .then((value: number) => setStoredCharacteristic(value))
@@ -34,7 +93,6 @@ function App() {
 
     calculator.storedLogX64()
       .then((value: EthersBigNumber) => {
-        const x64 = new BigNumber(2).pow(64)
         const readableLog = new BigNumber(value.toString()).div(x64)
         setStoredLog(readableLog.toFixed(4, BigNumber.ROUND_DOWN))
       })
@@ -46,7 +104,7 @@ function App() {
     if (!provider) {
       return
     }
-    const calculator = new ethers.Contract('0x369b45A61F8B569300e6137F61cB42Dfb21Ab6Ba', abi, provider.getSigner())
+    const calculator = new ethers.Contract('0x369b45A61F8B569300e6137F61cB42Dfb21Ab6Ba', calculatorAbi, provider.getSigner())
 
     // Generate characteristic and mantissa
     const char = Math.floor(Math.log10(newX))
@@ -86,37 +144,59 @@ function App() {
     console.log('result', result)
   }
 
-  const x = (Math.pow(10, storedCharacteristic) * storedMantissa / 100).toFixed(6)
-
   return (
     <div className="App">
-      {/* <div>
-        <img src="/napier-with-tree.png" className="logo" alt="Vite logo" />
-      </div> */}
-      <h1>Napier's Tree</h1>
-      <p>A gas efficient library to find logarithm on chain, inspired by</p>
+      <h1>Merkle Math</h1>
+      <p>A gas efficient library to find logarithm and power on chain, inspired by</p>
       <p>elementary school log tables. Lookup off-chain, prove on-chain.</p>
-
       <br />
-      <h2>x = {x}, log (x) = {storedLog}</h2>
-      <div className="card">
-        <div>
-          <input type="number"
-            style={{ marginRight: 10 }}
-            value={newX}
-            onChange={event => setNewX(Number(event.target.value))}
-          />
 
-          {
-            wallet.isConnected()
-              ? <button onClick={updateLog}>
-                Calculate log
-              </button>
-              : <button onClick={() => wallet.connect()}>Connect MetaMask</button>
-          }
-
-        </div>
+      <div>
+        <input type="radio" value="MALE" checked={isLog} name="gender" onClick={() => setIsLog(true)} /> Logarithm&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="FEMALE" checked={!isLog} name="gender" onClick={() => setIsLog(false)} /> Power / Antilog
       </div>
+
+      {
+        isLog
+          ? <div className="card">
+              <h2>x = {(Math.pow(10, storedCharacteristic) * storedMantissa / 100).toFixed(6)}, log (x) = {storedLog}</h2>
+              <br />
+              <div>
+                <input type="number"
+                  style={{ marginRight: 10 }}
+                  value={newX}
+                  onChange={event => setNewX(Number(event.target.value))}
+                />
+                {
+                  wallet.isConnected()
+                    ? <button onClick={updateLog}>
+                      Calculate log
+                    </button>
+                    : <button onClick={() => wallet.connect()}>Connect MetaMask</button>
+                }
+              </div>
+            </div>
+          : <div className="card">
+              <h2>{base} ^ {power} = {raised}</h2>
+              <br />
+              <div>
+                base:&nbsp;
+                <input type="number"
+                  style={{ marginRight: 10 }}
+                  value={base}
+                  onChange={event => setBase(Number(event.target.value))}
+                />
+                power:&nbsp;
+                <input type="number"
+                  style={{ marginRight: 10 }}
+                  value={power}
+                  onChange={event => setPower(Number(event.target.value))}
+                />
+              </div>
+            </div>
+      }
+
+
       <div>
         <p>
           Powered by ☕ at EthIndia 2022
