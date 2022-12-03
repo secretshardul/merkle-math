@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { ethers, BigNumber as EthersBigNumber } from 'ethers'
 import BigNumber from "bignumber.js"
-import { useWallet } from 'use-wallet'
 import Gist from 'react-gist'
+import { useWeb3React } from '@web3-react/core'
+import { InjectedConnector } from '@web3-react/injected-connector'
+import { Web3Provider } from '@ethersproject/providers'
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree"
 import './App.css'
 import { abi as calculatorAbi } from './contracts/Calculator.sol/Calculator.json'
@@ -14,9 +16,14 @@ import * as antilogTreeJson from './antilogTree.json'
 const x64 = new BigNumber(2).pow(64)
 
 function App() {
-  const wallet = useWallet()
-  const provider = wallet.ethereum
-    ? new ethers.providers.Web3Provider(wallet.ethereum)
+  const injectedConnector = new InjectedConnector({})
+  const { chainId, account, activate, active, library } = useWeb3React<Web3Provider>()
+
+  // @ts-ignore
+  const ethereum = window.ethereum
+
+  const provider = ethereum
+    ? new ethers.providers.Web3Provider(ethereum)
     : null
 
   const [storedCharacteristic, setStoredCharacteristic] = useState(0)
@@ -168,11 +175,11 @@ function App() {
                   onChange={event => setNewX(Number(event.target.value))}
                 />
                 {
-                  wallet.isConnected()
+                  account != null
                     ? <button onClick={updateLog}>
                       Calculate log
                     </button>
-                    : <button onClick={() => wallet.connect()}>Connect MetaMask</button>
+                    : <button onClick={() => { activate(injectedConnector) } }>Connect MetaMask</button>
                 }
               </div>
             </div>
@@ -236,9 +243,6 @@ function App() {
         <h3>Benchmarks- 44% improvement in gas 🚀</h3>
         <img src="/benchmark.jpg" />
       </div>
-
-
-
     </div>
   )
 }

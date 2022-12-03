@@ -1,6 +1,6 @@
-# Napier's tree
+# Merkle Math
 
-A gas efficient way to obtain logarithm on chain using merkle tree.
+A gas efficient way to obtain logarithm and power on chain using merkle tree.
 
 ## Steps
 
