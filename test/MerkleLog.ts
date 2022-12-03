@@ -1,6 +1,5 @@
 import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
-import { expect } from "chai";
+import { Parser } from 'json2csv'
 import { ethers } from "hardhat";
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree"
 import fs from "fs"
@@ -15,7 +14,7 @@ describe("MerkleLog", function () {
     return { merkleLog, owner, otherAccount };
   }
 
-  it("ABDK gas", async function () {
+  it("Merkle gas", async function () {
     const { merkleLog } = await loadFixture(deployFixture);
 
     const tree = StandardMerkleTree.load(JSON.parse(fs.readFileSync("tree.json").toString()))
@@ -45,7 +44,9 @@ describe("MerkleLog", function () {
       })
     }
 
-    fs.writeFileSync('merkle-benchmark.json', JSON.stringify(values))
+    const json2csvParser = new Parser()
+    const csv = json2csvParser.parse(values)
 
+    fs.writeFileSync('benchmarks/merkle.csv', csv)
   });
 });
