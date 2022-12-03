@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import {ethers, BigNumber as EthersBigNumber} from 'ethers'
+import { ethers, BigNumber as EthersBigNumber } from 'ethers'
 import BigNumber from "bignumber.js"
 import { useWallet } from 'use-wallet'
+import Gist from 'react-gist'
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree"
 import './App.css'
 import { abi } from './contracts/LogStorage.sol/LogStorage.json'
@@ -31,7 +32,7 @@ function App() {
     logStorage.storedMantissa()
       .then((value: number) => setStoredMantissa(value))
 
-      logStorage.storedLogX64()
+    logStorage.storedLogX64()
       .then((value: EthersBigNumber) => {
         const x64 = new BigNumber(2).pow(64)
         const readableLog = new BigNumber(value.toString()).div(x64)
@@ -89,10 +90,14 @@ function App() {
 
   return (
     <div className="App">
-      <div>
+      {/* <div>
         <img src="/napier-with-tree.png" className="logo" alt="Vite logo" />
-      </div>
+      </div> */}
       <h1>Napier's Tree</h1>
+      <p>A gas efficient library to find logarithm on chain, inspired by</p>
+      <p>elementary school log tables. Lookup off-chain, prove on-chain.</p>
+
+      <br />
       <h2>x = {x}, log (x) = {storedLog}</h2>
       <div className="card">
         <div>
@@ -105,16 +110,55 @@ function App() {
           {
             wallet.isConnected()
               ? <button onClick={updateLog}>
-                  Calculate log
-                </button>
+                Calculate log
+              </button>
               : <button onClick={() => wallet.connect()}>Connect MetaMask</button>
           }
 
         </div>
       </div>
-      <p>
-        Powered by ☕ at EthIndia 2022
-      </p>
+      <div>
+        <p>
+          Powered by ☕ at EthIndia 2022
+        </p>
+      </div>
+      <br />
+      <hr className="solid"></hr>
+      <div>
+        <h3>Why this library?</h3>
+        <div style={{ textAlign: 'left' }}>
+          <ul>
+            <li>DeFi protocols often have math operations involving logarithm and exponent.</li>
+            <li>Prominent such dapps are Uniswap, Balancer and Synthetix. They handle millions of dollars.</li>
+            <li>3rd party libraries like ABDK were developed because Solidity lacks native log and exp.</li>
+            <li>Existing libraries use a combination of iteration, bit shifting and 'magic numbers'.</li>
+            <li>However they're complex gas intensive. Here's Uniswap's log function 🤯</li>
+          </ul>
+
+          <Gist id='ee990a596d44773b715e290db5f86b20' />
+        </div>
+      </div>
+
+      <div>
+        <h3>Enter Napier's bones ☠️😨</h3>
+        <div style={{ textAlign: 'left' }}>
+          <ul>
+            <li>Napier's bones are tables of pre-calculated log and antilog (exponent) values.</li>
+            <li>Popular in elementary school math, you lookup values in the table instead of calculating.</li>
+            <li>Napier's bones meets merkle tree. First we store the merkle root of log table on chain.</li>
+            <li>Now the log off-chain, then pass it as a parameter along with merkle proof.</li>
+            <li>Here's the smart contract code</li>
+          </ul>
+        </div>
+
+        <Gist id='00208b0fb3a06e25021846ce798c1938' />
+
+        <h3>Benchmarks- 44% improvement in gas 🚀</h3>
+        <img src="/benchmark.jpg" />
+      </div>
+
+
+
     </div>
   )
 }
