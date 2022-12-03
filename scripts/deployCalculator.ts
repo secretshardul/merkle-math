@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 async function main() {
   const Calculator = await ethers.getContractFactory("Calculator", {
     libraries: {
-      MerkleMath: '0x842F183E400560bDB47Cf6e5c972CDE1bfe3aDd1'
+      MerkleMath: '0xa622A85B2E007C8B9e02ba18970dA379B8308c93'
     }
   });
   const calculator = await Calculator.deploy();

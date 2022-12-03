@@ -15,6 +15,26 @@ import * as antilogTreeJson from './antilogTree.json'
 
 const x64 = new BigNumber(2).pow(64)
 
+const contractAddresses: {
+  [key: number]: {
+      merkleMath: string;
+      calculator: string;
+  }
+} = {
+  80001: {
+    merkleMath: '0xc12af78631eD26157B1ce37C680f99A5389cdf21',
+    calculator: '0x369b45A61F8B569300e6137F61cB42Dfb21Ab6Ba',
+  },
+  338: {
+    merkleMath: '0xa622A85B2E007C8B9e02ba18970dA379B8308c93',
+    calculator: '0xbF3892B7A68e939bF1ca0DB5f91d5Cc73AaF779A',
+  },
+  8080: {
+    merkleMath: '0xa622A85B2E007C8B9e02ba18970dA379B8308c93',
+    calculator: '0x842F183E400560bDB47Cf6e5c972CDE1bfe3aDd1',
+  }
+}
+
 function App() {
   const injectedConnector = new InjectedConnector({})
   const { chainId, account, activate, active, library } = useWeb3React<Web3Provider>()
@@ -48,7 +68,7 @@ function App() {
       return
     }
 
-    const merkleMath = new ethers.Contract('0xc12af78631eD26157B1ce37C680f99A5389cdf21', merkleMathAbi, provider);
+    const merkleMath = new ethers.Contract(contractAddresses[chainId ?? 80001].merkleMath, merkleMathAbi, provider);
     async function getRaised() {
       // change of base
       const powerForBase2 = power * Math.log10(base) / Math.log10(2)
@@ -90,7 +110,7 @@ function App() {
     if (!provider) {
       return
     }
-    const calculator = new ethers.Contract('0x369b45A61F8B569300e6137F61cB42Dfb21Ab6Ba', calculatorAbi, provider);
+    const calculator = new ethers.Contract(contractAddresses[chainId ?? 80001].calculator, calculatorAbi, provider);
 
     calculator.storedCharacteristic()
       .then((value: number) => setStoredCharacteristic(value))
@@ -207,6 +227,9 @@ function App() {
       <div>
         <p>
           Powered by ☕ at EthIndia 2022
+        </p>
+        <p>
+          Supported networks- Mumbai, Cronos testnet, Shardeum testnet
         </p>
       </div>
       <br />
