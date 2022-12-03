@@ -14,7 +14,7 @@ describe("MerkleMath", function () {
     return { merkleMath, owner, otherAccount };
   }
 
-  it("Merkle gas", async function () {
+  it("Merkle log gas", async function () {
     const { merkleMath } = await loadFixture(deployFixture);
 
     const tree = StandardMerkleTree.load(JSON.parse(fs.readFileSync("tree.json").toString()))
@@ -48,5 +48,42 @@ describe("MerkleMath", function () {
     const csv = json2csvParser.parse(values)
 
     fs.writeFileSync('benchmarks/merkle.csv', csv)
+  })
+
+  it("Merkle antilog gas", async function () {
+    const { merkleMath } = await loadFixture(deployFixture);
+
+    const tree = StandardMerkleTree.load(JSON.parse(fs.readFileSync("antilogTree.json").toString()))
+
+    const values = []
+    for (let x = 0; x < 1000; x++) {
+      let proof: string[] | undefined
+      let antilog2X64: string | undefined
+
+      for (const [i, v] of tree.entries()) {
+        if (v[0] === x.toString()) {
+          proof = tree.getProof(i);
+          antilog2X64 = v[1]
+        }
+      }
+
+      if (!proof || !antilog2X64) {
+        throw Error('Not found')
+      }
+
+      const result = await merkleMath.antilog(0n, x, antilog2X64, proof)
+      const gas = await merkleMath.antilogGasCost(0n, x, antilog2X64, proof)
+
+      values.push({
+        i: x,
+        log: result.toString(),
+        gas: gas.toString()
+      })
+    }
+
+    const json2csvParser = new Parser()
+    const csv = json2csvParser.parse(values)
+
+    fs.writeFileSync('benchmarks/merkleAntilog.csv', csv)
   });
 });
