@@ -51,13 +51,16 @@ function App() {
     const char = Math.floor(Math.log10(newX))
 
     let mantissa = newX
-    if (newX < 10) {
-      mantissa = newX * 100
+    if (newX < 1) {
+      mantissa = Math.floor(newX * Math.pow(10, -char) * 100)
+    } else if (newX < 10) {
+      mantissa = Math.floor(newX * 100)
     } else if (newX < 100) {
-      mantissa = newX * 10
+      mantissa = Math.floor(newX * 10)
     } else if (newX > 999) {
       mantissa = Math.floor(newX / Math.pow(10, char - 2))
     }
+    console.log('char', char, 'mantissa', mantissa)
 
     // Generate proof
     // @ts-ignore
@@ -82,14 +85,12 @@ function App() {
     console.log('result', result)
   }
 
-  const x = Math.pow(10, storedCharacteristic) * storedMantissa / 100
+  const x = (Math.pow(10, storedCharacteristic) * storedMantissa / 100).toFixed(6)
 
   return (
     <div className="App">
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/napier-with-tree.png" className="logo" alt="Vite logo" />
-        </a>
+        <img src="/napier-with-tree.png" className="logo" alt="Vite logo" />
       </div>
       <h1>Napier's Tree</h1>
       <h2>x = {x}, log (x) = {storedLog}</h2>
@@ -98,7 +99,7 @@ function App() {
           <input type="number"
             style={{ marginRight: 10 }}
             value={newX}
-            onChange={event => setNewX(Math.floor(Number(event.target.value)))}
+            onChange={event => setNewX(Number(event.target.value))}
           />
 
           {
