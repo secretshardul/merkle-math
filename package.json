@@ -8,6 +8,10 @@
     "abdk-libraries-solidity": "^3.1.0",
     "bignumber.js": "^9.1.0",
     "hardhat": "^2.12.3",
+    "hardhat-abi-exporter": "^2.10.1",
     "json2csv": "^5.0.7"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3"
   }
 }

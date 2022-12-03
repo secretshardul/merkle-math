@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-contract MerkleLog {
+library MerkleLog {
   // The merkle root of log values from 0.100 to 9.999 in X64 format
   bytes32 constant root = 0x998add033af31411c96b8272b055b95b55d92f349c84111d5fac9e2cfcad7589;
 

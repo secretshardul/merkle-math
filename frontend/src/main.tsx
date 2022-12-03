@@ -6,7 +6,14 @@ import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <UseWalletProvider>
+    <UseWalletProvider autoConnect
+      connectors={{
+        injected: {
+          //allows you to connect and switch between mainnet and rinkeby within Metamask.
+          chainId: [1337, 80001],
+        }}
+      }
+    >
       <App />
     </UseWalletProvider>
   </React.StrictMode>
